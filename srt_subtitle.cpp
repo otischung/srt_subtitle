@@ -118,8 +118,6 @@ void write_srt(const std::string &filedir, const std::string &filename, const ti
     fp << std::setw(2) << std::setfill('0') << tm_timeline.tm_hour << ':'
        << std::setw(2) << std::setfill('0') << tm_timeline.tm_min << ':'
        << std::setw(2) << std::setfill('0') << tm_timeline.tm_sec << ",000 --> ";
-    gmtime_r(&(++timeline), &tm_timeline);
-    tm_timeline.tm_hour += (tm_timeline.tm_year - 70) * 8760 + (tm_timeline.tm_mon) * 744 + (tm_timeline.tm_mday - 1) * 24;
     fp << std::setw(2) << std::setfill('0') << tm_timeline.tm_hour << ':'
        << std::setw(2) << std::setfill('0') << tm_timeline.tm_min << ':'
        << std::setw(2) << std::setfill('0') << tm_timeline.tm_sec << ','
