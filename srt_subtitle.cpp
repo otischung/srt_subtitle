@@ -81,7 +81,7 @@ std::string get_srt_name(const std::string &filename) {
     return filename.substr(0, found + 1) + "srt";
 }
 
-void write_srt(const std::string &filedir, const std::string &filename, const time_t mtime, const time_t duration, const time_t utc) {
+void write_srt(const std::string &filedir, const std::string &filename, const time_t mtime, const double duration, const time_t utc) {
     std::fstream fp;
     std::string srt_name;
     time_t timeline = 0;
@@ -96,7 +96,7 @@ void write_srt(const std::string &filedir, const std::string &filename, const ti
     }
     gmtime_r(&timeline, &tm_timeline);
     gmtime_r(&timestamp, &tm_timestamp);
-    for (time_t i = 1; i <= duration; ++i) {
+    for (time_t i = 1; i <= (time_t)duration; ++i) {
         fp << i << '\n';
         fp << std::setw(2) << std::setfill('0') << tm_timeline.tm_hour << ':'
            << std::setw(2) << std::setfill('0') << tm_timeline.tm_min << ':'
@@ -114,12 +114,23 @@ void write_srt(const std::string &filedir, const std::string &filename, const ti
            << std::setw(2) << std::setfill('0') << tm_timestamp.tm_sec << "\n\n";
         gmtime_r(&(++timestamp), &tm_timestamp);
     }
-    // std::cerr << tm_timeline.tm_year << '\n';
-    // std::cerr << tm_timeline.tm_mon << '\n';
-    // std::cerr << tm_timeline.tm_mday << '\n';
-    // std::cerr << tm_timeline.tm_hour << '\n';
-    // std::cerr << tm_timeline.tm_min << '\n';
-    // std::cerr << tm_timeline.tm_mday << '\n';
+    fp << (time_t)duration + 1 << '\n';
+    fp << std::setw(2) << std::setfill('0') << tm_timeline.tm_hour << ':'
+       << std::setw(2) << std::setfill('0') << tm_timeline.tm_min << ':'
+       << std::setw(2) << std::setfill('0') << tm_timeline.tm_sec << ",000 --> ";
+    gmtime_r(&(++timeline), &tm_timeline);
+    tm_timeline.tm_hour += (tm_timeline.tm_year - 70) * 8760 + (tm_timeline.tm_mon) * 744 + (tm_timeline.tm_mday - 1) * 24;
+    fp << std::setw(2) << std::setfill('0') << tm_timeline.tm_hour << ':'
+       << std::setw(2) << std::setfill('0') << tm_timeline.tm_min << ':'
+       << std::setw(2) << std::setfill('0') << tm_timeline.tm_sec << ','
+       << std::setw(3) << std::setfill('0') << (time_t)((duration - (double)(time_t)duration) * 1000) << '\n';
+    fp << std::setw(4) << std::setfill('0') << tm_timestamp.tm_year + 1900 << '-'
+       << std::setw(2) << std::setfill('0') << tm_timestamp.tm_mon + 1 << '-'
+       << std::setw(2) << std::setfill('0') << tm_timestamp.tm_mday << ' '
+       << std::setw(2) << std::setfill('0') << tm_timestamp.tm_hour << ':'
+       << std::setw(2) << std::setfill('0') << tm_timestamp.tm_min << ':'
+       << std::setw(2) << std::setfill('0') << tm_timestamp.tm_sec << "\n\n";
+    
     fp.close();
 }
 
@@ -128,7 +139,7 @@ int main(int argc, char **argv) {
     std::string filedir;
     std::string filepath;
     time_t mtime;
-    time_t duration;
+    double duration;
 
     if (argc == 1) {
         while (std::cout << "Please enter file name or file path.\n", std::getline(std::cin, filename)) {
@@ -136,7 +147,7 @@ int main(int argc, char **argv) {
             filepath = filedir + filename;
             std::cout << "Reading: " << filedir << filename << std::endl;
             mtime = get_last_modification_time(filedir, filename);
-            duration = (time_t)get_video_duration(filedir, filename);
+            duration = get_video_duration(filedir, filename);
             write_srt(filedir, filename, mtime, duration, 8);
         }
     } else {
@@ -146,7 +157,7 @@ int main(int argc, char **argv) {
             filepath = filedir + filename;
             std::cout << "Reading: " << filedir << filename << std::endl;
             mtime = get_last_modification_time(filedir, filename);
-            duration = (time_t)get_video_duration(filedir, filename);
+            duration = get_video_duration(filedir, filename);
             write_srt(filedir, filename, mtime, duration, 8);
         }
     }
