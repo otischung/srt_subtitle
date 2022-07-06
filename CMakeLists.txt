@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( srt_subtitle )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( srt_subtitle srt_subtitle.cpp )
+target_link_libraries( srt_subtitle ${OpenCV_LIBS} )
