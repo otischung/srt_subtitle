@@ -1,7 +1,3 @@
 .idea
 .vscode
-CMakeFiles
-cmake_install.cmake
-CMakeCache.txt
-Makefile
-srt_subtitle
+build
